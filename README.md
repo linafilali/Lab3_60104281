@@ -79,7 +79,7 @@ NOTE: WHEN I TRIED TO MERGE THE QUERIES FOR THE THREE AGGREGATIONS INTO THE TABL
 
 - Word count statistics on reviews
 
-- Published final table to Warehouse as curated_reviews
+- Published final table to Warehouse as curated_reviews FAILED and dint want to work.
 
 **clean_gold_features.ipynb**
 
