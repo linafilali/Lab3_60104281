@@ -47,11 +47,13 @@ abfss://lakehouse@goodreadsreviews60104281.dfs.core.windows.net/gold/curated_rev
 - Verified via:
 ```python spark.sql("SELECT COUNT(*) FROM curated_reviews").show()
 
-I. Fabric Dataflow — Curated Reviews
-** Connection Setup**
+## I. Fabric Dataflow — Curated Reviews
+### Connection Setup
+
 
 Connected to Azure Data Lake Storage Gen2 via:
 
+```m
 let
   Source = AzureStorage.DataLake("https://goodreadsreviews60104281.dfs.core.windows.net/lakehouse/gold/curated_reviews/", [HierarchicalNavigation=true]),
   DeltaTable = DeltaLake.Table(Source)
