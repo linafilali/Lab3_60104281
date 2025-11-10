@@ -45,13 +45,12 @@ abfss://lakehouse@goodreadsreviews60104281.dfs.core.windows.net/gold/curated_rev
 
 - **Register table** as `curated_reviews` for Fabric SQL queries
 - Verified via:
-```python
-spark.sql("SELECT COUNT(*) FROM curated_reviews").show()
+```python spark.sql("SELECT COUNT(*) FROM curated_reviews").show()
 
+I. Fabric Dataflow — Curated Reviews
+** Connection Setup**
 
-**In Microsoft Fabric**
-
-Connected to ADLS using:
+Connected to Azure Data Lake Storage Gen2 via:
 
 let
   Source = AzureStorage.DataLake("https://goodreadsreviews60104281.dfs.core.windows.net/lakehouse/gold/curated_reviews/", [HierarchicalNavigation=true]),
@@ -59,85 +58,94 @@ let
 in
   DeltaTable
 
+** Data Cleaning & Transformation**
 
-- Adjusted types for IDs, ratings, and text fields (COULDNT ADJUST THE DATE FOR THE DATE_ADDED COLUMN)
+Adjusted types for identifiers (book_id, user_id, author_id) and rating fields.
 
-- Removed missing or invalid records
+ The date_added column could not be successfully converted to datetime in Fabric.
 
-- Replaced nulls (language = "Unknown", n_votes = 0)
+Removed records with missing or invalid keys or ratings.
 
-- Trimmed and capitalized text (title, name)
+Replaced nulls:
 
-- Created derived aggregations:
+language → "Unknown"
 
-- Average rating per BookID
+n_votes → 0
 
-- Review count per BookID
+Trimmed and standardized capitalization for textual columns (title, name).
 
-- Average rating per Author
-NOTE: WHEN I TRIED TO MERGE THE QUERIES FOR THE THREE AGGREGATIONS INTO THE TABLE , IT WOULDNT WANT TO WORK
+Created derived aggregations:
 
-- Word count statistics on reviews
+Average rating per book_id
 
-- Published final table to Warehouse as curated_reviews FAILED and dint want to work.
+Review count per book_id
 
-**clean_gold_features.ipynb**
+Average rating per author
 
-Goal: Complete preprocessing and feature creation in Databricks (Python + PySpark).
+**Word count statistics on reviews**
 
-**Steps Performed**
+Note: Attempting to merge multiple aggregated queries into one table caused refresh errors in Fabric.
+Final publishing to the Warehouse (curated_reviews) failed, so further cleaning was continued in Databricks.
 
-**- Connected to ADLS Gen2 via:**
+II. Databricks — Gold Layer: clean_gold_features.ipynb
+** Connection Configuration**
 
-spark.conf.set("fs.azure.account.key.goodreadsreviews60104281.dfs.core.windows.net", "<access-key>")
+Connected to ADLS Gen2 using Spark configuration:
 
+spark.conf.set(
+    "fs.azure.account.key.goodreadsreviews60104281.dfs.core.windows.net",
+    "<access-key>"
+)
 
-**- Loaded Silver datasets:**
+**Data Loading**
+
+Loaded Silver layer datasets:
 
 books = spark.read.parquet(".../processed/books/")
 authors = spark.read.parquet(".../processed/authors/")
 reviews = spark.read.parquet(".../processed/reviews/")
 
+**Data Cleaning Steps**
 
-**Cleaned data:**
+Dropped nulls from review_id, book_id, user_id, and rating.
 
-- Dropped null review_id, book_id, user_id, and rating
+Filtered out invalid ratings (must be between 1 and 5).
 
-- Filtered invalid ratings (1–5)
+Removed very short reviews (<10 characters).
 
-- Removed short reviews (<10 chars)
+Trimmed and normalized text fields.
 
-- Trimmed and normalized text
+Removed duplicate reviews (review_id).
 
-- Deduplicated by review_id
+**Feature Engineering**
 
-- Added derived features:
+Created key derived features:
 
-- Review length (word count)
+review_length → number of words in each review.
 
-- Aggregated metrics per book_id:
+Aggregated metrics per book_id:
 
 features = curated.groupBy("book_id").agg(
     avg("rating").alias("avg_rating_per_book"),
     count("review_id").alias("review_count_per_book")
 )
 
+**Gold Layer Output**
 
-- Saved enriched Gold dataset:
+Saved the final cleaned and enriched dataset:
 
 abfss://lakehouse@goodreadsreviews60104281.dfs.core.windows.net/gold/features_v1
 
-**In Fabric**
+** Validation**
+In Microsoft Fabric
 
-✔️ Confirmed final curated_reviews table loads successfully
-✔️ Verified column types and non-null counts
-✔️ Validated published table in Warehouse
+✔️ Confirmed the curated_reviews table loads successfully.
+✔️ Verified column types and non-null counts.
+✔️ Validated table structure in Warehouse preview.
 
-**In Databricks**
+In Databricks
 
-✔️ features_v1 Delta table schema validated
-✔️ Sample query:
+✔️ Confirmed features_v1 Delta schema.
+✔️ Sample inspection query:
 
 spark.read.format("delta").load(".../gold/features_v1").show(5)
-
-
