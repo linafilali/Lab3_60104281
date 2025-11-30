@@ -6,16 +6,10 @@ on:
       - MLOp
   workflow_dispatch: {}
 
-permissions:
-  id-token: write
-  contents: read
-
 env:
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  AZURE_ML_WORKSPACE:  ${{ secrets.AZURE_ML_WORKSPACE }}
-  AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+  AZURE_SUBSCRIPTION_ID: "a485bb50-61aa-4b2f-bc7f-b6b53539b9d3"
+  AZURE_RESOURCE_GROUP: "rg-60104281"
+  AZURE_ML_WORKSPACE:  "tumour60104281"
 
 jobs:
   run-pipeline-and-deploy:
@@ -35,18 +29,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install azure-ai-ml azure-identity mlflow
 
-      - name: Azure login using OIDC
+      - name: Azure login (service principal)
         uses: azure/login@v2
         with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Submit training pipeline to Azure ML
-        run: |
-          python pipeline_job.py
+      - name: Submit training pipeline
+        run: python pipeline_job.py
 
-      - name: Deploy latest registered model to Managed Online Endpoint
+      - name: Deploy latest model
         if: success()
-        run: |
-          python deploy_endpoint.py
+        run: python deploy_endpoint.py
