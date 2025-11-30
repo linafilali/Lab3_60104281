@@ -575,6 +575,13 @@ This sends a single MRI image to the managed endpoint and prints the predicted l
 
 ## Evidence / Screenshots
 
+* Pipeline run in Azure ML Studio
 ![Azure ML pipeline run](images/pipeline_run.png)
 
-Screenshot of Jobs page showing a successful run of the Gold pipeline
+Screenshot of Jobs page showing a successful run of the Gold pipeline in Azure.
+
+* Managed Online Endpoint
+![Managed online endpoint](images/endpoint_overview.png)
+
+Screenshot of Endpoints → Real-time endpoints showing your endpoint (e.g. tumor-endpoint-6010...).
+
