@@ -1,0 +1,33 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+
+name: feature_selection
+display_name: B - Feature Selection (Baseline + GA)
+version: 1
+type: command
+
+inputs:
+  train:
+    type: uri_file
+    description: "Training set parquet from Component A."
+
+outputs:
+  selected_features:
+    type: uri_file
+    description: "JSON list of GA-selected feature names."
+  baseline_metrics:
+    type: uri_file
+    description: "Baseline feature selection metrics."
+  ga_metrics:
+    type: uri_file
+    description: "GA feature selection metrics."
+
+code: ..
+
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu@latest
+
+command: >
+  python src/feature_selection.py
+  --train_path ${{inputs.train}}
+  --selected_features_output ${{outputs.selected_features}}
+  --baseline_metrics_output ${{outputs.baseline_metrics}}
+  --ga_metrics_output ${{outputs.ga_metrics}}
