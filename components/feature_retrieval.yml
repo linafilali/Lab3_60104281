@@ -1,0 +1,29 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+
+name: feature_retrieval
+display_name: A - Feature Retrieval
+version: 1
+type: command
+
+inputs:
+  features:
+    type: uri_file
+    description: "Tumor features parquet (Silver layer)."
+
+outputs:
+  train:
+    type: uri_file
+    description: "Training set parquet."
+  test:
+    type: uri_file
+    description: "Test set parquet."
+
+code: ..
+
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu@latest
+
+command: >
+  python src/feature_retrieval.py
+  --features_path ${{inputs.features}}
+  --train_output ${{outputs.train}}
+  --test_output ${{outputs.test}}
