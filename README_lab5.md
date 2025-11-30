@@ -571,10 +571,10 @@ This sends a single MRI image to the managed endpoint and prints the predicted l
 > **Note:** Replace placeholder values (**X**, **Y**, **Z**, etc.) with your actual metrics before submission.
 
 ```
-
----
-
-You can paste this into `README.md` in your repo and then just edit the few placeholder numbers (accuracies, feature counts, latencies) once you have them.
-::contentReference[oaicite:0]{index=0}
 ```
 
+## Evidence / Screenshots
+
+![Azure ML pipeline run](images/pipeline_run.png)
+
+Screenshot of Jobs page showing a successful run of the Gold pipeline
