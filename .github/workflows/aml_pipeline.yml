@@ -11,6 +11,7 @@ env:
   AZURE_RESOURCE_GROUP: "rg-60104281"
   AZURE_ML_WORKSPACE:  "tumour60104281"
 
+
 jobs:
   run-pipeline-and-deploy:
     runs-on: ubuntu-latest
