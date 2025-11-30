@@ -1,0 +1,34 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+
+name: train_and_eval
+display_name: C - Training & Evaluation
+version: 1
+type: command
+
+inputs:
+  train:
+    type: uri_file
+  test:
+    type: uri_file
+  selected_features:
+    type: uri_file
+
+outputs:
+  model:
+    type: uri_folder
+    description: "Trained model artifact."
+  metrics:
+    type: uri_file
+    description: "Metrics JSON."
+
+code: ..
+
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu@latest
+
+command: >
+  python src/train_and_eval.py
+  --train_path ${{inputs.train}}
+  --test_path ${{inputs.test}}
+  --selected_features_path ${{inputs.selected_features}}
+  --model_dir ${{outputs.model}}
+  --metrics_output ${{outputs.metrics}}
